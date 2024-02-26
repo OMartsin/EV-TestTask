@@ -38,10 +38,20 @@ public class ChargingStationValidator implements ConstraintValidator<ValidChargi
                 && station.getDescription() != null && !station.getDescription().trim().isEmpty()
                 && station.getAddress() != null && !station.getAddress().trim().isEmpty()
                 && station.getLocation() != null;
+        if (station.getTitle() != null && station.getTitle().length() > 32) {
+            addConstraintViolation(context, "The title must not exceed 32 characters.");
+            return false;
+        }
+        if (station.getDescription() != null && station.getDescription().length() > 128) {
+            addConstraintViolation(context, "The description must not exceed 128 characters.");
+            return false;
+        }
+        if (station.getAddress() != null && station.getAddress().length() > 128) {
+            addConstraintViolation(context, "The address must not exceed 128 characters.");
+            return false;
+        }
         if (!res) {
-            context.disableDefaultConstraintViolation();
-            context.buildConstraintViolationWithTemplate("Title, description, address, and location are required for public charging stations")
-                    .addConstraintViolation();
+            addConstraintViolation(context, "The title, description, address and location must not be blank.");
         }
         return res;
     }
@@ -92,6 +102,12 @@ public class ChargingStationValidator implements ConstraintValidator<ValidChargi
     private boolean isConnectorsMaxPowerValid(List<ChargingConnectorRequest> connectors) {
         return connectors.stream().allMatch(connector -> connector.getMaxKWPower() != null
                 && connector.getMaxKWPower() > 0);
+    }
+
+    private void addConstraintViolation(ConstraintValidatorContext context, String message) {
+        context.disableDefaultConstraintViolation();
+        context.buildConstraintViolationWithTemplate(message)
+                .addConstraintViolation();
     }
 }
 
