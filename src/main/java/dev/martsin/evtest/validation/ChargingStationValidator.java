@@ -14,6 +14,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ChargingStationValidator implements ConstraintValidator<ValidChargingStation, ChargingStationRequest> {
     private final ChargingConnectorTypeRepository chargingConnectorTypeRepository;
+    private final Integer maxNumOfConnectors = 8;
+    private final Integer minNumOfConnectors = 1;
+
     @Override
     public boolean isValid(ChargingStationRequest station, ConstraintValidatorContext context) {
         if(station.getLocation() != null && !isGeolocationValid(station)){
@@ -73,7 +76,7 @@ public class ChargingStationValidator implements ConstraintValidator<ValidChargi
                         .addConstraintViolation();
                 return false;
             }
-            if(connectors.size() < 1 || connectors.size() > 8){
+            if(connectors.size() < minNumOfConnectors || connectors.size() > maxNumOfConnectors){
                 context.disableDefaultConstraintViolation();
                 context.buildConstraintViolationWithTemplate("The num of 'connectors' must be from 1 to 8")
                         .addConstraintViolation();
